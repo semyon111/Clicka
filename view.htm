@@ -1,17 +1,35 @@
-    <HTML lang="ru">
-    <HEAD>
-        <meta charset="UTF-8">
-        <TITLE>island clicker</TITLE>
-        <link rel="stylesheet" href="style.css" />
-    </HEAD>
-    <BODY>
-        <div id="moneyDisp">Монеты: 0</div>
-        <button id="palmButton">🌴 Пальма</button>
-        <div id="shopPanel">
-            <h3>Магазин:</h3>
-            <div id="shopItems"></div>
-        </div>
-        <script src="game.js"></script>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Island Clicker — Островной кликер</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    </BODY>
-    </HTML>
+    <div class="top-stats">
+        <div id="moneyDisp">💰 Монеты: 0</div>
+        <div id="incomePerSecDisp">📈 Доход: 0/сек</div>
+    </div>
+
+    <div class="click-hint">👇 Нажми на остров, чтобы заработать монеты</div>
+
+    <div class="main-layout">
+        <div class="center-area">
+            <div class="island-wrapper">
+                <img id="islandImage" src="island.png" alt="Ваш остров" class="island-img clickable-island"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20150%22%3E%3Crect%20width%3D%22200%22%20height%3D%22150%22%20fill%3D%22%23d2b48c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%3E%D0%9E%D1%81%D1%82%D1%80%D0%BE%D0%B2%3C%2Ftext%3E%3C%2Fsvg%3E';">
+            </div>
+            <div id="builtIcons" class="built-icons"></div>
+        </div>
+
+        <div id="shopPanel" class="shop-panel">
+            <h3>🏝️ Магазин построек</h3>
+            <div id="shopItems" class="shop-items-container"></div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
