@@ -107,26 +107,7 @@ class Game {
 
         const totalCost = building.cost * finalQuantity;
         /* Общая стоимость */
-
-        if (this.money < totalCost) {
-            /* Если денег не хватает на запрошенное количество */
-            if (quantity === 10) {
-                /* Но если нажали 10, пробуем купить сколько можем */
-                finalQuantity = Math.floor(this.money / building.cost);
-                /* Считаем доступное количество */
-                if (finalQuantity === 0) return;
-                /* Если 0 — выходим */
-                this.money -= building.cost * finalQuantity;
-                /* Списываем деньги */
-                this.buildings[id] += finalQuantity;
-                /* Увеличиваем счётчик купленных */
-                this.incomePerSec += building.income * finalQuantity;
-                /* Увеличиваем доход */
-            } else {
-                return;
                 /* В остальных случаях просто выходим */
-            }
-        } else {
             /* Если денег хватает */
             this.money -= totalCost;
             /* Списываем полную стоимость */
@@ -134,7 +115,6 @@ class Game {
             /* Увеличиваем счётчик */
             this.incomePerSec += building.income * finalQuantity;
             /* Увеличиваем доход */
-        }
 
         this.updateUI();
         /* Обновляем счётчики и магазин */
@@ -224,13 +204,9 @@ class Game {
             /* Создаём контейнер для информации */
             detailsDiv.className = 'item-details';
             detailsDiv.innerHTML = `
-            /* Заполняем HTML-разметкой */
                 <span class="item-stats">💰 ${building.cost} монет</span>
-                /* Цена здания */
                 <span class="item-stats">⚡ +${building.income}/сек</span>
-                /* Доход в секунду */
                 <span class="item-count">📦 ${count}</span>
-                /* Количество купленных */
             `;
             card.appendChild(detailsDiv);
             /* Добавляем информацию в карточку */
