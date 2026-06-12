@@ -1,5 +1,5 @@
 ﻿// =======================
-// КЛАСС GAME — островной кликер с кораблём
+// КЛАСС GAME
 // =======================
 class Game {
     constructor() {
@@ -41,7 +41,6 @@ class Game {
     }
 
     click() {
-        if (this.gameEnded) return;
         this.money += 1;
         this.totalEarned += 1;
         this.totalClicks += 1;
@@ -50,7 +49,6 @@ class Game {
     }
 
     buyBuilding(id, quantity) {
-        if (this.gameEnded) return;
         const building = this.buildingData.find(b => b.id === id);
         if (!building) return;
 
@@ -82,7 +80,6 @@ class Game {
         this.renderBuildingsOnIsland();
         this.saveGame();
 
-        // Если только что куплено одно из обычных зданий и теперь все пять есть — перерисовываем магазин принудительно
         if (id >= 1 && id <= 5 && this.isShipUnlocked()) {
             this.renderShop();
         }
@@ -95,10 +92,6 @@ class Game {
     endGame() {
         if (this.gameEnded) return;
         this.gameEnded = true;
-        if (this.incomeInterval) {
-            clearInterval(this.incomeInterval);
-            this.incomeInterval = null;
-        }
         const endModal = document.getElementById('endGameModal');
         if (endModal) endModal.style.display = 'flex';
         this.renderShop();
@@ -117,18 +110,17 @@ class Game {
         container.innerHTML = '';
 
         const shipUnlocked = this.isShipUnlocked();
-        // Отладка: проверьте консоль (F12), чтобы убедиться, что условие становится true
         if (shipUnlocked) console.log('Корабль разблокирован!');
 
         for (let building of this.buildingData) {
-            // Показываем корабль только если разблокирован и игра не окончена
-            if (building.id === 6 && (!shipUnlocked || this.gameEnded)) continue;
+
+            if (building.id === 6 && !shipUnlocked) continue;
 
             const count = this.buildings[building.id] || 0;
-            const canBuy1 = !this.gameEnded && this.money >= building.cost;
-            const canBuy10 = !this.gameEnded && this.money >= building.cost * 10;
+            const canBuy1 = this.money >= building.cost;
+            const canBuy10 =  this.money >= building.cost * 10;
             const maxPossible = Math.floor(this.money / building.cost);
-            const canBuyMax = !this.gameEnded && maxPossible > 0;
+            const canBuyMax =    maxPossible > 0;
 
             const card = document.createElement('div');
             card.className = 'shop-item-card';
@@ -199,15 +191,59 @@ class Game {
         const container = document.getElementById('buildingsOnIsland');
         if (!container) return;
         container.innerHTML = '';
+
+        // Получаем реальные размеры картинки острова
+        const islandImg = document.getElementById('islandImage');
+        /* Находим картинку острова */
+        if (!islandImg) return;
+        /* Если картинки нет — выходим */
+
+        const imgWidth = islandImg.clientWidth;
+        /* Реальная ширина картинки в пикселях прямо сейчас */
+        const imgHeight = islandImg.clientHeight;
+        /* Реальная высота картинки в пикселях прямо сейчас */
+
+        // Если картинка ещё не загрузилась и размеры нулевые — выходим
+        if (imgWidth === 0 || imgHeight === 0) return;
+        /* Значит картинка ещё не отрисовалась, нечего позиционировать */
+
+        // Позиции зданий в ПИКСЕЛЯХ относительно левого верхнего угла картинки
         const positions = {
-            1: [{ top: '35%', left: '30%' }, { top: '35%', left: '35%' }, { top: '40%', left: '30%' }, { top: '40%', left: '35%' }],
-            2: [{ top: '25%', left: '55%' }, { top: '25%', left: '60%' }, { top: '30%', left: '55%' }, { top: '30%', left: '60%' }],
-            3: [{ top: '55%', left: '45%' }, { top: '55%', left: '50%' }, { top: '60%', left: '45%' }, { top: '60%', left: '50%' }],
-            4: [{ top: '15%', left: '40%' }, { top: '15%', left: '45%' }, { top: '20%', left: '40%' }, { top: '20%', left: '45%' }],
-            5: [{ top: '40%', left: '50%' }, { top: '40%', left: '55%' }, { top: '45%', left: '50%' }, { top: '45%', left: '55%' }]
+            1: [ // Хижина
+                { top: 120, left: 250 },
+                { top: 120, left:  235  },
+                { top: 105, left: 250 },
+                { top: 105, left: 235}
+            ],
+            2: [ // Лесопилка
+                { top: 60, left: 200 },
+                { top: 60, left: 220 },
+                { top: 85, left: 200 },
+                { top: 85, left: 220 }
+            ],
+            3: [ // Храм
+                { top: 140, left: 150 },
+                { top: 140, left: 190 },
+                { top: 165, left: 150 },
+                { top: 165, left: 190 }
+            ],
+            4: [ // Пещера
+                { top: 180, left: 210 },
+                { top: 180, left: 225 },
+                { top: 195, left: 210 },
+                { top: 195, left: 225 }
+            ],
+            5: [ // Завод
+                { top: 200, left: 270 },
+                { top: 200, left: 300 },
+                { top: 239, left: 270 },
+                { top: 239, left: 300 }
+            ]
         };
+
         for (let building of this.buildingData) {
             if (building.id === 6) continue;
+            /* Корабль не отображаем на острове */
             const count = this.buildings[building.id] || 0;
             if (count === 0) continue;
             const displayCount = Math.min(count, 4);
@@ -216,10 +252,20 @@ class Game {
             for (let i = 0; i < displayCount; i++) {
                 const pos = buildingPositions[i];
                 if (!pos) continue;
+
+                // Превращаем пиксельные координаты в проценты
+                const topPercent = (pos.top / imgHeight) * 100;
+                /* Сколько процентов от высоты картинки */
+                const leftPercent = (pos.left / imgWidth) * 100;
+                /* Сколько процентов от ширины картинки */
+
                 const buildingEl = document.createElement('div');
                 buildingEl.className = 'island-building';
-                buildingEl.style.top = pos.top;
-                buildingEl.style.left = pos.left;
+                buildingEl.style.top = topPercent + '%';
+                /* Ставим в процентах от родителя */
+                buildingEl.style.left = leftPercent + '%';
+                /* Ставим в процентах от родителя */
+
                 const img = document.createElement('img');
                 img.src = `icons/${building.icon}`;
                 img.alt = building.name;
@@ -277,7 +323,6 @@ class Game {
     startIncomeLoop() {
         if (this.incomeInterval) clearInterval(this.incomeInterval);
         this.incomeInterval = setInterval(() => {
-            if (this.gameEnded) return;
             if (this.incomePerSec > 0) {
                 this.money += this.incomePerSec;
                 this.totalEarned += this.incomePerSec;
@@ -372,7 +417,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const closeStatsBtn = document.getElementById('closeStatsBtn');
     const helpModal = document.getElementById('helpModal');
     const closeHelpBtn = document.getElementById('closeHelpBtn');
-    const newGameBtn = document.getElementById('newGameBtn');
+    const continueGameBtn = document.getElementById('continueGameBtn');
+    const endGameModal = document.getElementById('endGameModal');
+
+    continueGameBtn?.addEventListener('click', () => {
+        endGameModal.style.display = 'none';
+    });
 
     menuButton?.addEventListener('click', () => sideMenu.classList.add('open'));
     closeMenuBtn?.addEventListener('click', () => sideMenu.classList.remove('open'));
@@ -393,4 +443,8 @@ window.addEventListener('DOMContentLoaded', () => {
         if (!sideMenu.contains(e.target) && e.target !== menuButton) sideMenu.classList.remove('open');
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'F1') { e.preventDefault(); window.open('help/index.html', '_blank'); } });
+    // Обновление позиций зданий при изменении размера окна
+    window.addEventListener('resize', () => {
+        game.renderBuildingsOnIsland();
+    });
 });
