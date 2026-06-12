@@ -1,816 +1,471 @@
 ﻿* {
-    /* Применяется ко ВСЕМ элементам на странице */
     box-sizing: border-box;
-    /* Размер элемента включает padding и border, чтобы не вылезало за границы */
 }
 
 body {
-    /* Стили для всей видимой части страницы */
     font-family: 'Segoe UI', 'Times New Roman', Georgia, serif;
-    /* Шрифты в порядке приоритета: Segoe UI, если нет — Times New Roman, если нет — Georgia */
     background: linear-gradient(145deg, #cfe7cf 0%, #b8d9b0 100%);
-    /* Градиентный фон от светло-зелёного к более тёмному */
     margin: 0;
-    /* Убираем внешние отступы по краям страницы */
     min-height: 100vh;
-    /* Минимальная высота на весь экран */
     padding: 20px;
-    /* Внутренний отступ 20 пикселей */
     display: flex;
-    /* Флекс-контейнер для центрирования содержимого */
     flex-direction: column;
-    /* Элементы внутри располагаются вертикально */
     align-items: center;
-    /* Центрирование по горизонтали */
     justify-content: center;
-    /* Центрирование по вертикали */
 }
 
 /* ========== МЕНЮ ========== */
-
 .menu-button {
-    /* Стили для кнопки-гамбургера */
     position: fixed;
-    /* Фиксированное положение, не прокручивается */
     top: 20px;
-    /* Отступ сверху 20 пикселей */
     right: 20px;
-    /* Отступ справа 20 пикселей */
     font-size: 32px;
-    /* Размер иконки ☰ */
     background: #2c2e1ecc;
-    /* Тёмный полупрозрачный фон */
     color: #FFD966;
-    /* Жёлтый цвет иконки */
     border: 2px solid #f9e0a0;
-    /* Золотистая рамка */
     border-radius: 20px;
-    /* Скругление углов */
     padding: 8px 16px;
-    /* Внутренние отступы */
     cursor: pointer;
-    /* Курсор в виде пальца при наведении */
     z-index: 1000;
-    /* Поверх всех элементов */
     backdrop-filter: blur(6px);
-    /* Размытие фона под кнопкой */
     transition: background 0.2s;
-    /* Плавное изменение фона */
 }
 
     .menu-button:hover {
-        /* При наведении на кнопку меню */
         background: #3a3c26;
-        /* Фон становится чуть светлее */
     }
 
 .side-menu {
-    /* Стили для выезжающей панели меню */
     position: fixed;
-    /* Фиксированное положение */
     top: 0;
-    /* Прижато к верху */
     right: -300px;
-    /* Спрятано за правым краем экрана */
     width: 280px;
-    /* Ширина меню */
     height: 100vh;
-    /* На всю высоту экрана */
     background: #fdf8ec;
-    /* Светлый фон */
     box-shadow: -5px 0 20px rgba(0,0,0,0.3);
-    /* Тень слева */
     z-index: 999;
-    /* Поверх остальных элементов, но под кнопкой */
     transition: right 0.3s ease;
-    /* Плавное выезжание */
     padding: 20px;
-    /* Внутренние отступы */
     display: flex;
-    /* Флекс-контейнер */
     flex-direction: column;
-    /* Вертикальное расположение */
     gap: 12px;
-    /* Расстояние между кнопками */
     border-left: 2px solid #e3bc7c;
-    /* Золотистая рамка слева */
 }
 
     .side-menu.open {
-        /* Когда меню открыто (JS добавляет класс open) */
         right: 0;
-        /* Выезжает на экран */
     }
 
 .menu-header {
-    /* Заголовок меню */
     display: flex;
-    /* Флекс-контейнер */
     justify-content: space-between;
-    /* Текст слева, кнопка закрытия справа */
     align-items: center;
-    /* Выравнивание по центру */
     font-size: 24px;
-    /* Размер текста */
     font-weight: bold;
-    /* Жирный текст */
     color: #5b3c12;
-    /* Тёмно-коричневый цвет */
     padding-bottom: 10px;
-    /* Отступ снизу */
     border-bottom: 1px solid #eeca87;
-    /* Разделительная линия */
 }
 
 .menu-close-btn {
-    /* Кнопка закрытия меню (крестик) */
     background: none;
-    /* Без фона */
     border: none;
-    /* Без рамки */
     font-size: 24px;
-    /* Размер крестика */
     cursor: pointer;
-    /* Курсор-палец */
     color: #7a511e;
-    /* Цвет крестика */
 }
 
 .menu-item-btn {
-    /* Кнопки внутри меню */
     background: #fff2e2;
-    /* Светло-бежевый фон */
     border: 1px solid #eeca87;
-    /* Золотистая рамка */
     border-radius: 20px;
-    /* Скругление */
     padding: 14px;
-    /* Внутренние отступы */
     font-size: 18px;
-    /* Размер текста */
     cursor: pointer;
-    /* Курсор-палец */
     text-align: left;
-    /* Текст слева */
     transition: background 0.2s;
-    /* Плавное изменение фона */
 }
 
     .menu-item-btn:hover:not(:disabled) {
-        /* При наведении на активную кнопку меню */
         background: #f5e1c0;
-        /* Фон становится темнее */
     }
 
     .menu-item-btn:disabled {
-        /* Неактивные кнопки меню */
         opacity: 0.5;
-        /* Полупрозрачные */
         cursor: not-allowed;
-        /* Курсор "запрещено" */
     }
 
-/* ========== МОДАЛЬНОЕ ОКНО ========== */
-
+/* ========== МОДАЛЬНЫЕ ОКНА ========== */
 .modal-overlay {
-    /* Затемняющий фон */
     position: fixed;
-    /* Фиксированное положение */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.5);
-    /* Полупрозрачный чёрный */
     z-index: 2000;
-    /* Поверх всего */
     display: flex;
-    /* Флекс для центрирования */
     align-items: center;
-    /* Центр по вертикали */
     justify-content: center;
-    /* Центр по горизонтали */
 }
 
 .modal-box {
-    /* Белое окно подтверждения */
     background: white;
-    /* Белый фон */
     padding: 30px;
-    /* Внутренние отступы */
     border-radius: 30px;
-    /* Скругление */
     text-align: center;
-    /* Текст по центру */
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    /* Тень */
     max-width: 400px;
-    /* Максимальная ширина */
 }
 
     .modal-box p {
-        /* Текст внутри окна */
         font-size: 20px;
-        /* Размер текста */
         margin-bottom: 20px;
-        /* Отступ снизу */
     }
 
 .modal-buttons {
-    /* Контейнер для кнопок */
     display: flex;
-    /* Флекс */
     gap: 15px;
-    /* Расстояние между кнопками */
     justify-content: center;
-    /* Центрирование */
 }
 
 .modal-btn {
-    /* Общие стили кнопок в модальном окне */
     padding: 12px 28px;
-    /* Внутренние отступы */
     border-radius: 20px;
-    /* Скругление */
     border: none;
-    /* Без рамки */
     font-size: 18px;
-    /* Размер текста */
     cursor: pointer;
-    /* Курсор-палец */
     font-weight: bold;
-    /* Жирный текст */
 }
 
 .danger-btn {
-    /* Красная кнопка сброса */
     background: #d9534f;
-    /* Красный фон */
     color: white;
-    /* Белый текст */
 }
 
     .danger-btn:hover {
-        /* При наведении */
         background: #c9302c;
-        /* Темнее */
     }
 
 .cancel-btn {
-    /* Серая кнопка отмены */
     background: #ddd;
-    /* Серый фон */
     color: #333;
-    /* Тёмный текст */
 }
 
     .cancel-btn:hover {
-        /* При наведении */
         background: #bbb;
-        /* Темнее */
     }
 
 /* ========== ВЕРХНЯЯ ПАНЕЛЬ ========== */
-
 .top-stats {
-    /* Контейнер счётчиков */
     display: flex;
-    /* Флекс */
     justify-content: space-between;
-    /* Равномерное распределение */
     align-items: baseline;
-    /* Выравнивание по базовой линии текста */
     gap: 30px;
-    /* Расстояние между счётчиками */
     background: #2c2e1ecc;
-    /* Тёмный полупрозрачный фон */
     backdrop-filter: blur(6px);
-    /* Размытие фона */
     padding: 12px 28px;
-    /* Внутренние отступы */
     border-radius: 70px;
-    /* Сильное скругление */
     margin-bottom: 15px;
-    /* Отступ снизу */
     width: fit-content;
-    /* Ширина по содержимому */
     max-width: 90%;
-    /* Максимальная ширина */
     flex-wrap: wrap;
-    /* Перенос на новую строку если не влезает */
     box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-    /* Тень */
     border: 1px solid #f9e0a0;
-    /* Золотистая рамка */
 }
 
 #moneyDisp, #incomePerSecDisp {
-    /* Стили для обоих счётчиков */
     font-size: 28px;
-    /* Размер текста */
     font-weight: bold;
-    /* Жирный */
     color: #FFD966;
-    /* Жёлтый цвет */
     text-shadow: 2px 2px 0 #5a3e1a;
-    /* Тень текста для объёма */
     background: #2b2b12aa;
-    /* Полупрозрачный тёмный фон */
     padding: 6px 18px;
-    /* Внутренние отступы */
     border-radius: 40px;
-    /* Скругление */
 }
 
 #moneyDisp {
-    /* Отдельные стили для счётчика денег */
     color: #ffec80;
-    /* Более яркий жёлтый */
     font-size: 32px;
-    /* Крупнее */
 }
 
 #incomePerSecDisp {
-    /* Отдельные стили для счётчика дохода */
     font-size: 24px;
-    /* Чуть меньше */
     color: #c0ffb0;
-    /* Светло-зелёный */
 }
 
 .click-hint {
-    /* Подсказка под счётчиками */
     font-size: 20px;
-    /* Размер текста */
     color: #2f2e1e;
-    /* Тёмный цвет */
     background: #efdba1dd;
-    /* Полупрозрачный бежевый фон */
     padding: 8px 24px;
-    /* Внутренние отступы */
     border-radius: 60px;
-    /* Скругление */
     margin-bottom: 20px;
-    /* Отступ снизу */
     backdrop-filter: blur(2px);
-    /* Лёгкое размытие фона */
     font-weight: bold;
-    /* Жирный текст */
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    /* Лёгкая тень */
 }
 
 /* ========== ОСНОВНОЙ КОНТЕЙНЕР ========== */
-
 .main-layout {
-    /* Флекс-контейнер для острова и магазина */
     display: flex;
-    /* Флекс */
     flex-wrap: wrap;
-    /* Перенос если не влезает */
     justify-content: center;
-    /* Центрирование */
     align-items: stretch;
-    /* Растягивание по высоте */
     gap: 30px;
-    /* Расстояние между блоками */
     max-width: 1400px;
-    /* Максимальная ширина */
     width: 100%;
-    /* На всю ширину */
     margin: 0 auto;
-    /* Центрирование */
 }
 
 .center-area {
-    /* Левая часть — остров */
     flex: 3;
-    /* Занимает 3 части */
     min-width: 280px;
-    /* Минимальная ширина */
     background: rgba(226, 212, 163, 0.3);
-    /* Полупрозрачный фон */
     border-radius: 64px;
-    /* Скругление */
     backdrop-filter: blur(3px);
-    /* Размытие */
     padding: 20px 15px 25px 15px;
-    /* Внутренние отступы */
     display: flex;
-    /* Флекс */
     flex-direction: column;
-    /* Вертикально */
     align-items: center;
-    /* Центрирование */
     justify-content: flex-start;
-    /* Сверху */
     box-shadow: 0 12px 28px rgba(0,0,0,0.2);
-    /* Тень */
     border: 1px solid #ffefb9;
-    /* Рамка */
+    position: relative;
 }
 
 .island-wrapper {
-    /* Обёртка картинки острова */
     background: #b1cf9e;
-    /* Зелёный фон */
     border-radius: 60px;
-    /* Скругление */
     padding: 12px;
-    /* Внутренние отступы */
     margin-bottom: 20px;
-    /* Отступ снизу */
     box-shadow: inset 0 0 0 3px #f9e2a1, 0 12px 20px rgba(0,0,0,0.3);
-    /* Внутренняя и внешняя тень */
     width: 100%;
-    /* На всю ширину */
     display: flex;
-    /* Флекс */
     justify-content: center;
-    /* Центрирование картинки */
     position: relative;
-    /* Для абсолютного позиционирования зданий на острове (будет добавлено позже) */
 }
 
 .island-img {
-    /* Картинка острова */
     max-width: 90%;
-    /* Максимальная ширина */
     width: 480px;
-    /* Ширина */
     height: auto;
-    /* Автоматическая высота */
     border-radius: 48px;
-    /* Скругление */
     display: block;
-    /* Блочный элемент */
     box-shadow: 0 10px 18px rgba(0,0,0,0.3);
-    /* Тень */
     background: #7ba55b;
-    /* Фон если картинка не загрузилась */
     border: 3px solid #fcd48d;
-    /* Золотистая рамка */
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    /* Плавная анимация при клике */
 }
 
 .clickable-island {
-    /* Кликабельный остров */
     cursor: pointer;
-    /* Курсор-палец */
 }
 
     .clickable-island:hover {
-        /* При наведении */
         transform: scale(1.02);
-        /* Лёгкое увеличение */
         box-shadow: 0 15px 25px rgba(0,0,0,0.4);
-        /* Увеличенная тень */
     }
 
     .clickable-island:active {
-        /* При нажатии */
         transform: scale(0.98);
-        /* Лёгкое уменьшение — эффект нажатия */
     }
 
-/* ========== ЗДАНИЯ НА ОСТРОВЕ ========== */
-
+/* Здания на острове */
 .buildings-on-island {
-    /* Контейнер для зданий на острове */
     position: absolute;
-    /* Абсолютное позиционирование внутри island-wrapper */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    /* Не перехватывает клики по острову */
     z-index: 2;
-    /* Поверх картинки */
 }
 
 .island-building {
-    /* Одно здание на острове */
     position: absolute;
-    /* Абсолютное позиционирование */
     width: 48px;
-    /* Ширина иконки */
     height: 48px;
-    /* Высота иконки */
     transition: transform 0.3s ease, opacity 0.3s ease;
-    /* Плавное появление */
     animation: buildingPopIn 0.4s ease-out;
-    /* Анимация появления при покупке */
 }
 
     .island-building img {
-        /* Картинка внутри контейнера */
         width: 100%;
-        /* На всю ширину */
         height: 100%;
-        /* На всю высоту */
         object-fit: contain;
-        /* Сохраняет пропорции */
     }
 
 @keyframes buildingPopIn {
-    /* Анимация появления здания */
     from {
         transform: scale(0);
-        /* Начало: невидимое */
         opacity: 0;
-        /* Прозрачное */
     }
 
     to {
         transform: scale(1);
-        /* Конец: нормальный размер */
         opacity: 1;
-        /* Полностью видимое */
     }
 }
 
-/* ========== ОБЛАСТЬ КУПЛЕННЫХ ЗДАНИЙ ========== */
-
+/* Иконки под островом */
 .built-icons {
-    /* Контейнер под островом */
     display: flex;
-    /* Флекс */
     flex-wrap: wrap;
-    /* Перенос */
     justify-content: center;
-    /* Центрирование */
     gap: 16px;
-    /* Расстояние */
     margin-top: 10px;
-    /* Отступ сверху */
     padding: 10px;
-    /* Внутренние отступы */
     background: #f2e3c6aa;
-    /* Полупрозрачный фон */
     border-radius: 48px;
-    /* Скругление */
     width: 100%;
-    /* Ширина */
     min-height: 80px;
-    /* Минимальная высота */
 }
 
 .built-icon-item {
-    /* Одна иконка с количеством */
     background: #f9efda;
-    /* Светлый фон */
     border-radius: 40px;
-    /* Скругление */
     padding: 6px 12px;
-    /* Внутренние отступы */
     display: flex;
-    /* Флекс */
     align-items: center;
-    /* Выравнивание по центру */
     gap: 8px;
-    /* Расстояние между иконкой и числом */
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    /* Тень */
 }
 
     .built-icon-item img {
-        /* Иконка */
         width: 36px;
-        /* Ширина */
         height: 36px;
-        /* Высота */
         object-fit: contain;
-        /* Сохраняет пропорции */
     }
 
     .built-icon-item span {
-        /* Количество */
         font-size: 18px;
-        /* Размер текста */
         font-weight: bold;
-        /* Жирный */
         color: #4a2c0e;
-        /* Тёмно-коричневый */
     }
 
-/* ========== МАГАЗИН ========== */
-
+/* Магазин */
 .shop-panel {
-    /* Панель магазина */
     flex: 1.2;
-    /* Занимает 1.2 части */
     min-width: 320px;
-    /* Минимальная ширина */
     max-width: 400px;
-    /* Максимальная ширина */
     background: #fdf8ec;
-    /* Светлый фон */
     border-radius: 48px;
-    /* Скругление */
     padding: 16px 20px 30px 20px;
-    /* Внутренние отступы */
     box-shadow: 0 20px 30px rgba(0,0,0,0.25);
-    /* Тень */
     border: 2px solid #e3bc7c;
-    /* Золотистая рамка */
     max-height: 85vh;
-    /* Максимальная высота */
     overflow-y: auto;
-    /* Прокрутка если не влезает */
 }
 
     .shop-panel h3 {
-        /* Заголовок магазина */
         text-align: center;
-        /* По центру */
         font-size: 28px;
-        /* Размер */
         margin: 0 0 15px 0;
-        /* Отступы */
         color: #7a511e;
-        /* Цвет */
         background: #ffefcf;
-        /* Фон */
         padding: 8px 0;
-        /* Внутренние отступы */
         border-radius: 60px;
-        /* Скругление */
     }
 
 .shop-items-container {
-    /* Контейнер для карточек */
     display: flex;
-    /* Флекс */
     flex-direction: column;
-    /* Вертикально */
     gap: 18px;
-    /* Расстояние */
 }
 
 .shop-item-card {
-    /* Карточка одного здания */
     background: #fff2e2;
-    /* Фон */
     border-radius: 40px;
-    /* Скругление */
     padding: 12px 18px;
-    /* Внутренние отступы */
     border: 1px solid #eeca87;
-    /* Рамка */
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    /* Тень */
 }
 
     .shop-item-card strong {
-        /* Название здания */
         font-size: 1.35rem;
-        /* Размер */
         color: #5b3c12;
-        /* Цвет */
         display: block;
-        /* Блочный */
         margin-bottom: 6px;
-        /* Отступ */
     }
 
 .building-icon {
-    /* Контейнер иконки здания */
     display: flex;
-    /* Флекс */
     justify-content: center;
-    /* Центрирование */
     margin: 8px 0 6px 0;
-    /* Отступы */
 }
 
 .building-icon-img {
-    /* Картинка здания */
     width: 64px;
-    /* Ширина */
     height: 64px;
-    /* Высота */
     object-fit: contain;
-    /* Сохраняет пропорции */
     background: #ebdbbd;
-    /* Фон */
     border-radius: 12px;
-    /* Скругление */
     padding: 4px;
-    /* Внутренние отступы */
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    /* Тень */
 }
 
 .item-details {
-    /* Информация о цене, доходе, количестве */
     font-size: 16px;
-    /* Размер текста */
     margin: 6px 0 8px;
-    /* Отступы */
     background: #f7efdb;
-    /* Фон */
     padding: 6px 10px;
-    /* Внутренние отступы */
     border-radius: 30px;
-    /* Скругление */
     display: flex;
-    /* Флекс */
     flex-wrap: wrap;
-    /* Перенос */
     justify-content: space-between;
-    /* Равномерно */
     align-items: baseline;
-    /* Выравнивание */
 }
 
 .item-stats {
-    /* Цена и доход */
     font-weight: bold;
-    /* Жирный */
     color: #2b572e;
-    /* Зелёный */
 }
 
 .item-count {
-    /* Количество купленных */
     background: #cfb27c;
-    /* Бежевый фон */
     padding: 2px 12px;
-    /* Внутренние отступы */
     border-radius: 40px;
-    /* Скругление */
     color: white;
-    /* Белый текст */
 }
 
-/* ========== КНОПКИ ПОКУПКИ ========== */
-
 .quantity-selector {
-    /* Контейнер кнопок 1, 10, Max */
     display: flex;
-    /* Флекс */
     gap: 8px;
-    /* Расстояние */
     justify-content: center;
-    /* Центрирование */
     margin: 10px 0 8px;
-    /* Отступы */
 }
 
 .qty-btn {
-    /* Кнопка покупки */
     background: #6f9e3f;
-    /* Зелёный фон */
     border: none;
-    /* Без рамки */
     padding: 4px 12px;
-    /* Внутренние отступы */
     border-radius: 30px;
-    /* Скругление */
     font-weight: bold;
-    /* Жирный */
     cursor: pointer;
-    /* Курсор-палец */
     transition: 0.1s;
-    /* Быстрая анимация */
     font-size: 14px;
-    /* Размер */
     color: white;
-    /* Белый текст */
 }
 
     .qty-btn:disabled {
-        /* Неактивная кнопка */
         background: #aaa67f;
-        /* Серый фон */
         cursor: not-allowed;
-        /* Курсор "запрещено" */
         opacity: 0.7;
-        /* Полупрозрачная */
-    }
-    
-    .qty-btn:hover:not(:disabled) {
-        /* Наведение на активную кнопку */
-        background: #5a8232;
-        /* Темнее */
     }
 
-/* ========== АДАПТИВНОСТЬ ========== */
+    .qty-btn:hover:not(:disabled) {
+        background: #5a8232;
+    }
 
 @media (max-width: 780px) {
-    /* Для экранов уже 780 пикселей */
     .main-layout {
         flex-direction: column;
-        /* Остров и магазин друг под другом */
         align-items: center;
-        /* Центрирование */
     }
 
     .shop-panel {
         max-width: 95%;
-        /* Почти на всю ширину */
         width: 100%;
     }
 
@@ -820,6 +475,13 @@ body {
 
     .island-img {
         width: 95%;
-        /* Уменьшаем картинку */
+    }
+    .end-game-img {
+        display: block;
+        max-width: 80%;
+        height: auto;
+        margin: 15px auto;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 }
