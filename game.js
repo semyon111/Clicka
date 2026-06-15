@@ -15,13 +15,14 @@ class Game {
     }
 
     loadBuildings() {
+        // Данные в соответствии с утверждённой экономикой (Таблица 3)
         this.buildingData = [
-            { id: 1, name: "Хижина", cost: 10, income: 1, icon: "house.png" },
-            { id: 2, name: "Лесопилка", cost: 50, income: 6, icon: "tree.png" },
-            { id: 3, name: "Храм", cost: 200, income: 25, icon: "tample.png" },
-            { id: 4, name: "Пещера", cost: 500, income: 85, icon: "cave.png" },
-            { id: 5, name: "Завод", cost: 2000, income: 400, icon: "factori.png" },
-            { id: 6, name: "Корабль", cost: 100000, income: 0, icon: "ship.png" }
+            { id: 1, name: "Хижина", baseCost: 500, income: 1, multiplier: 1.7, icon: "house.png" },
+            { id: 2, name: "Лесопилка", baseCost: 3000, income: 6, multiplier: 1.7, icon: "tree.png" },
+            { id: 3, name: "Храм", baseCost: 15000, income: 25, multiplier: 1.7, icon: "tample.png" },
+            { id: 4, name: "Пещера", baseCost: 80000, income: 100, multiplier: 1.7, icon: "cave.png" },
+            { id: 5, name: "Завод", baseCost: 400000, income: 400, multiplier: 1.7, icon: "factori.png" },
+            { id: 6, name: "Корабль", baseCost: 8000000, income: 0, multiplier: 1.0, icon: "ship.png" }
         ];
         this.buildingData.forEach(b => {
             if (!this.buildings[b.id]) this.buildings[b.id] = 0;
@@ -33,6 +34,38 @@ class Game {
         this.renderBuildingsOnIsland();
     }
 
+    getBuildingCost(building) {
+        if (building.id === 6) return building.baseCost;
+        const count = this.buildings[building.id] || 0;
+        let cost = building.baseCost * Math.pow(building.multiplier, count);
+        return Math.ceil(cost);
+    }
+
+    getMaxAffordable(building) {
+        if (building.id === 6) return this.money >= building.baseCost ? 1 : 0;
+        let count = this.buildings[building.id] || 0;
+        let money = this.money;
+        let canBuy = 0;
+        while (true) {
+            let cost = building.baseCost * Math.pow(building.multiplier, count + canBuy);
+            cost = Math.ceil(cost);
+            if (money >= cost) {
+                money -= cost;
+                canBuy++;
+            } else break;
+        }
+        return canBuy;
+    }
+
+    buyOne(building) {
+        const cost = this.getBuildingCost(building);
+        if (this.money < cost) return false;
+        this.money -= cost;
+        this.buildings[building.id] = (this.buildings[building.id] || 0) + 1;
+        this.incomePerSec += building.income;
+        return true;
+    }
+
     isShipUnlocked() {
         for (let i = 1; i <= 5; i++) {
             if ((this.buildings[i] || 0) === 0) return false;
@@ -41,6 +74,7 @@ class Game {
     }
 
     click() {
+        if (this.gameEnded) return;
         this.money += 1;
         this.totalEarned += 1;
         this.totalClicks += 1;
@@ -51,39 +85,35 @@ class Game {
     buyBuilding(id, quantity) {
         const building = this.buildingData.find(b => b.id === id);
         if (!building) return;
-
-        let finalQuantity = quantity;
+        let toBuy = 0;
         if (quantity === 'max') {
-            finalQuantity = Math.floor(this.money / building.cost);
-            if (finalQuantity === 0) return;
-        }
-
-        const totalCost = building.cost * finalQuantity;
-        if (this.money < totalCost) {
-            if (quantity === 10) {
-                finalQuantity = Math.floor(this.money / building.cost);
-                if (finalQuantity === 0) return;
-                this.money -= building.cost * finalQuantity;
-                this.buildings[id] += finalQuantity;
-                this.incomePerSec += building.income * finalQuantity;
-            } else {
-                return;
-            }
+            toBuy = this.getMaxAffordable(building);
+        } else if (quantity === 10) {
+            toBuy = 10;
         } else {
-            this.money -= totalCost;
-            this.buildings[id] += finalQuantity;
-            this.incomePerSec += building.income * finalQuantity;
+            toBuy = 1;
         }
-
+        if (toBuy === 0) return;
+        if (building.id !== 6) {
+            let bought = 0;
+            for (let i = 0; i < toBuy; i++) {
+                if (this.buyOne(building)) bought++;
+                else break;
+            }
+            if (bought === 0) return;
+        } else {
+            const cost = building.baseCost;
+            if (this.money < cost) return;
+            this.money -= cost;
+            this.buildings[building.id] = (this.buildings[building.id] || 0) + 1;
+        }
         this.updateUI();
         this.renderBuiltIcons();
         this.renderBuildingsOnIsland();
         this.saveGame();
-
         if (id >= 1 && id <= 5 && this.isShipUnlocked()) {
             this.renderShop();
         }
-
         if (id === 6) {
             this.endGame();
         }
@@ -110,17 +140,15 @@ class Game {
         container.innerHTML = '';
 
         const shipUnlocked = this.isShipUnlocked();
-        if (shipUnlocked) console.log('Корабль разблокирован!');
 
         for (let building of this.buildingData) {
-
-            if (building.id === 6 && !shipUnlocked) continue;
+            if (building.id === 6 && (!shipUnlocked || this.gameEnded)) continue;
 
             const count = this.buildings[building.id] || 0;
-            const canBuy1 = this.money >= building.cost;
-            const canBuy10 =  this.money >= building.cost * 10;
-            const maxPossible = Math.floor(this.money / building.cost);
-            const canBuyMax =    maxPossible > 0;
+            const currentCost = this.getBuildingCost(building);
+            const canBuy1 = !this.gameEnded && this.money >= currentCost;
+            const canBuy10 = !this.gameEnded && (building.id === 6 ? this.money >= currentCost * 10 : this.getMaxAffordable(building) >= 10);
+            const canBuyMax = !this.gameEnded && (building.id === 6 ? this.money >= currentCost : this.getMaxAffordable(building) > 0);
 
             const card = document.createElement('div');
             card.className = 'shop-item-card';
@@ -145,7 +173,7 @@ class Game {
             const detailsDiv = document.createElement('div');
             detailsDiv.className = 'item-details';
             detailsDiv.innerHTML = `
-                <span class="item-stats">💰 ${building.cost} монет</span>
+                <span class="item-stats">💰 ${currentCost} монет</span>
                 <span class="item-stats">⚡ +${building.income}/сек</span>
                 <span class="item-count">📦 ${count}</span>
             `;
@@ -192,80 +220,36 @@ class Game {
         if (!container) return;
         container.innerHTML = '';
 
-        // Получаем реальные размеры картинки острова
         const islandImg = document.getElementById('islandImage');
-        /* Находим картинку острова */
         if (!islandImg) return;
-        /* Если картинки нет — выходим */
-
         const imgWidth = islandImg.clientWidth;
-        /* Реальная ширина картинки в пикселях прямо сейчас */
         const imgHeight = islandImg.clientHeight;
-        /* Реальная высота картинки в пикселях прямо сейчас */
-
-        // Если картинка ещё не загрузилась и размеры нулевые — выходим
         if (imgWidth === 0 || imgHeight === 0) return;
-        /* Значит картинка ещё не отрисовалась, нечего позиционировать */
 
-        // Позиции зданий в ПИКСЕЛЯХ относительно левого верхнего угла картинки
         const positions = {
-            1: [ // Хижина
-                { top: 120, left: 250 },
-                { top: 120, left:  235  },
-                { top: 105, left: 250 },
-                { top: 105, left: 235}
-            ],
-            2: [ // Лесопилка
-                { top: 60, left: 200 },
-                { top: 60, left: 220 },
-                { top: 85, left: 200 },
-                { top: 85, left: 220 }
-            ],
-            3: [ // Храм
-                { top: 140, left: 150 },
-                { top: 140, left: 190 },
-                { top: 165, left: 150 },
-                { top: 165, left: 190 }
-            ],
-            4: [ // Пещера
-                { top: 180, left: 210 },
-                { top: 180, left: 225 },
-                { top: 195, left: 210 },
-                { top: 195, left: 225 }
-            ],
-            5: [ // Завод
-                { top: 200, left: 270 },
-                { top: 200, left: 300 },
-                { top: 239, left: 270 },
-                { top: 239, left: 300 }
-            ]
+            1: [{ top: 120, left: 250 }],
+            2: [{ top: 60, left: 200 }],
+            3: [{ top: 140, left: 150 }],
+            4: [{ top: 180, left: 210 }],
+            5: [{ top: 200, left: 270 }]
         };
 
         for (let building of this.buildingData) {
             if (building.id === 6) continue;
-            /* Корабль не отображаем на острове */
             const count = this.buildings[building.id] || 0;
             if (count === 0) continue;
-            const displayCount = Math.min(count, 4);
+            const displayCount = Math.min(count, 1);
             const buildingPositions = positions[building.id];
             if (!buildingPositions) continue;
             for (let i = 0; i < displayCount; i++) {
                 const pos = buildingPositions[i];
                 if (!pos) continue;
-
-                // Превращаем пиксельные координаты в проценты
                 const topPercent = (pos.top / imgHeight) * 100;
-                /* Сколько процентов от высоты картинки */
                 const leftPercent = (pos.left / imgWidth) * 100;
-                /* Сколько процентов от ширины картинки */
-
                 const buildingEl = document.createElement('div');
                 buildingEl.className = 'island-building';
                 buildingEl.style.top = topPercent + '%';
-                /* Ставим в процентах от родителя */
                 buildingEl.style.left = leftPercent + '%';
-                /* Ставим в процентах от родителя */
-
                 const img = document.createElement('img');
                 img.src = `icons/${building.icon}`;
                 img.alt = building.name;
@@ -323,6 +307,7 @@ class Game {
     startIncomeLoop() {
         if (this.incomeInterval) clearInterval(this.incomeInterval);
         this.incomeInterval = setInterval(() => {
+            if (this.gameEnded) return;
             if (this.incomePerSec > 0) {
                 this.money += this.incomePerSec;
                 this.totalEarned += this.incomePerSec;
@@ -402,7 +387,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const islandImg = document.getElementById('islandImage');
     if (islandImg) islandImg.addEventListener('click', () => game.click());
 
-    // Элементы меню и модальных окон (как в вашем коде, здесь сокращённо)
     const menuButton = document.getElementById('menuButton');
     const sideMenu = document.getElementById('sideMenu');
     const closeMenuBtn = document.getElementById('closeMenuBtn');
@@ -437,13 +421,14 @@ window.addEventListener('DOMContentLoaded', () => {
     resetModal?.addEventListener('click', (e) => { if (e.target === resetModal) resetModal.style.display = 'none'; });
     closeStatsBtn?.addEventListener('click', () => statsModal.style.display = 'none');
     statsModal?.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.style.display = 'none'; });
+    // Обработчик для кнопки новой игры (если есть в финальном окне)
+    const newGameBtn = document.getElementById('newGameBtn');
     newGameBtn?.addEventListener('click', () => { game.resetAndRestart(); });
 
     document.addEventListener('click', (e) => {
         if (!sideMenu.contains(e.target) && e.target !== menuButton) sideMenu.classList.remove('open');
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'F1') { e.preventDefault(); window.open('help/index.html', '_blank'); } });
-    // Обновление позиций зданий при изменении размера окна
     window.addEventListener('resize', () => {
         game.renderBuildingsOnIsland();
     });
