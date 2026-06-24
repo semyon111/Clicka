@@ -380,7 +380,7 @@ class Game {
 // =======================
 // ЗАПУСК ИГРЫ
 // =======================
-window.addEventListener('DOMContentLoaded', () => {
+window.onload = function () {
     const game = new Game();
     game.startIncomeLoop();
 
@@ -421,7 +421,6 @@ window.addEventListener('DOMContentLoaded', () => {
     resetModal?.addEventListener('click', (e) => { if (e.target === resetModal) resetModal.style.display = 'none'; });
     closeStatsBtn?.addEventListener('click', () => statsModal.style.display = 'none');
     statsModal?.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.style.display = 'none'; });
-    // Обработчик для кнопки новой игры (если есть в финальном окне)
     const newGameBtn = document.getElementById('newGameBtn');
     newGameBtn?.addEventListener('click', () => { game.resetAndRestart(); });
 
@@ -432,4 +431,4 @@ window.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
         game.renderBuildingsOnIsland();
     });
-});
+};
